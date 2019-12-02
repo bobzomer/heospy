@@ -69,7 +69,7 @@ def application(env, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [bytes(str(res), encoding="utf8")]
     except:
-        start_response('200 OK', [('Content-Type', 'text/html')])
+        start_response('200 OK', [('Content-Type', 'text/text')])
         import traceback
         return [bytes(traceback.format_exc(), encoding="utf8")]
 
