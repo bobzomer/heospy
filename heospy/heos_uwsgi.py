@@ -1,13 +1,47 @@
+from functools import lru_cache
+from pathlib import Path
+from urllib.parse import urlparse, urlunparse
+from heos_player import HeosPlayer
 
-config_file = r'/home/pi/heos/heospy/config.json'
+
+config_file = Path(__file__).absolute().parent.parent / 'config.json'
+
 
 def get_current_album(player):
     res = player.cmd("player/get_now_playing_media", {})
-    return '<html><head>%(album)s - %(artist)s</head><body><a href="http://www.deezer.com/album/%(album_id)s/"><h1>%(album)s - %(artist)s</h1><img src="%(image_url)s"/><br/>Album link</a></body></html>' % res['payload']
+    return '''<html>
+    <head><title>%(album)s - %(artist)s</title></head>
+    <body>
+        <a href="http://www.deezer.com/album/%(album_id)s/">
+            <h1>%(album)s - %(artist)s</h1>
+            <img src="%(image_url)s"/><br/>
+            <h2>%(song)s</h2>
+        </a>
+    </body>
+</html>''' % res['payload']
+
 
 def play(player, url):
+    for u in url.split():
+        if u.startswith('http'):
+            url = u
+            break
+    else:
+        return f'<html><body><h1>No URL found</h1>{url}</body></html>'
+    parsed_url = urlparse(url)
+    if 'deezer' in parsed_url.netloc:
+        url = urlunparse(tuple(url)[:3]+('',)*3)
+    else:
+        return f'<html><body><h1>Unsupported URL</h1>{url}</body></html>'
     res = player.cmd("browse/play_stream", {"url": url})
     return '<html><body>OK</body></html>'
+
+
+@lru_cache(5)
+def get_source(player):
+    res = player.cmd("browse/get_music_sources", {})
+    return {src['name']: src for src in res}
+
 
 def application(env, start_response):
     try:
@@ -18,27 +52,24 @@ def application(env, start_response):
             for a in uri[1].split('&'):
                 key, val = a.split('=')
                 heos_args[key] = val
-        from heos_player import HeosPlayer
-        import json
         if heos_cmd.startswith('/heos'):
             heos_cmd = heos_cmd[5:]
         else:
-            start_response('200 OK', [('Content-Type','text/html')])
+            start_response('200 OK', [('Content-Type', 'text/html')])
             return [bytes(str(env), encoding="utf8")]
         if heos_cmd.startswith('/'):
             heos_cmd = heos_cmd[1:]
-        p = HeosPlayer(rediscover = False, config_file=config_file)
+        p = HeosPlayer(rediscover=False, config_file=config_file)
         if heos_cmd == 'get_current_album':
             res = get_current_album(p)
         elif heos_cmd == 'play':
             res = play(p, heos_args['url'])
         else:
-            #res = json.dumps(p.cmd(heos_cmd, heos_args), indent=2)
             res = heos_cmd + str(heos_args)
-        start_response('200 OK', [('Content-Type','text/html')])
+        start_response('200 OK', [('Content-Type', 'text/html')])
         return [bytes(str(res), encoding="utf8")]
     except:
-        start_response('200 OK', [('Content-Type','text/html')])
+        start_response('200 OK', [('Content-Type', 'text/html')])
         import traceback
         return [bytes(traceback.format_exc(), encoding="utf8")]
 
