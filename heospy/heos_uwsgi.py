@@ -29,12 +29,12 @@ def play(player, url):
             url = u
             break
     else:
-        return f'<html><body><h1>No URL found</h1>{url}</body></html>'
+        return '<html><body><h1>No URL found</h1>%s</body></html>' % url
     parsed_url = urlparse(url)
     if 'deezer' in parsed_url.netloc:
         url = urlunparse(tuple(url)[:3]+('',)*3)
     else:
-        return f'<html><body><h1>Unsupported URL</h1>{url}</body></html>'
+        return '<html><body><h1>Unsupported URL</h1>%s</body></html>' % url
     res = player.cmd("browse/play_stream", {"url": url})
     return '<html><body>OK</body></html>'
 
@@ -72,6 +72,6 @@ def application(env, start_response):
         return [bytes(str(res), encoding="utf8")]
     except:
         start_response('200 OK', [('Content-Type', 'text/html')])
-        return [bytes(f'<pre>{html.escape(traceback.format_exc())}</pre>', encoding="utf8")]
+        return [bytes('<pre>%s</pre>' % html.escape(traceback.format_exc()), encoding="utf8")]
 
 
