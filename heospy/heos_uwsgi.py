@@ -3,7 +3,7 @@ import traceback
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
-from heos_player import HeosPlayer
+from .heos_player import HeosPlayer
 
 
 config_file = Path(__file__).absolute().parent.parent / 'config.json'
