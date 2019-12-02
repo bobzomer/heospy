@@ -61,7 +61,7 @@ def application(env, start_response):
             return [bytes(str(env), encoding="utf8")]
         if heos_cmd.startswith('/'):
             heos_cmd = heos_cmd[1:]
-        p = HeosPlayer(rediscover=False, config_file=config_file)
+        p = HeosPlayer(rediscover=False, config_file=str(config_file))
         if heos_cmd == 'get_current_album':
             res = get_current_album(p)
         elif heos_cmd == 'play':
