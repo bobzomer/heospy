@@ -1,3 +1,5 @@
+import html
+import traceback
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
@@ -69,8 +71,7 @@ def application(env, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [bytes(str(res), encoding="utf8")]
     except:
-        start_response('200 OK', [('Content-Type', 'text/text')])
-        import traceback
-        return [bytes(traceback.format_exc(), encoding="utf8")]
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        return [bytes(f'<pre>{html.escape(traceback.format_exc())}</pre>', encoding="utf8")]
 
 
