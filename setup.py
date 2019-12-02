@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='heospy',
-    version='0.1.0',
+    version='0.1.4',
     author='Stephan Heuel',
     author_email='mail@ping13.net',
-    packages=['heospy'],
+    packages=find_packages(),
     entry_points = {
         'console_scripts': ['heos_player=heospy.heos_player:main'],
     },
@@ -16,5 +16,6 @@ setup(
         'six',
         'future'
     ],
-    long_description=open('Readme.md').read()
+    long_description=open('Readme.md').read(),
+    long_description_content_type='text/markdown'
 )
