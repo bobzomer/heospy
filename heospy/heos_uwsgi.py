@@ -46,6 +46,7 @@ def get_source(player):
 
 
 def application(env, start_response):
+    uri = None
     try:
         uri = env['REQUEST_URI'].split('?')
         heos_cmd = uri[0]
@@ -72,6 +73,7 @@ def application(env, start_response):
         return [bytes(str(res), encoding="utf8")]
     except:
         start_response('200 OK', [('Content-Type', 'text/html')])
-        return [bytes('<pre>%s</pre>' % html.escape(traceback.format_exc()), encoding="utf8")]
+        return [bytes('<b>Url:</b>%s<br/><pre>%s</pre>' %
+                      (uri, html.escape(traceback.format_exc())), encoding="utf8")]
 
 
