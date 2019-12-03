@@ -53,7 +53,10 @@ def application(env, start_response):
         heos_args = {}
         if len(uri) > 1:
             for a in uri[1].split('&'):
-                key, val = a.split('=')
+                try:
+                    key, val = a.split('=')
+                except ValueError:
+                    key, val = 'url', a
                 heos_args[key] = val
         if heos_cmd.startswith('/heos'):
             heos_cmd = heos_cmd[5:]
