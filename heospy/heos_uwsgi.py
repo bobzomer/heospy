@@ -77,7 +77,7 @@ def application(env, start_response):
         elif heos_cmd == 'play':
             res = play(p, heos_args['url'])
         elif heos_cmd == 'get_sources':
-            res = '<html><body><pre>%s</pre></body></html>' % html.escape(get_sources(p))
+            res = '<html><body><pre>%s</pre></body></html>' % html.escape(str(get_sources(p)))
         else:
             res = heos_cmd + str(heos_args)
         start_response('200 OK', [('Content-Type', 'text/html')])
