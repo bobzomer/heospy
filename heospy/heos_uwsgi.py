@@ -48,7 +48,7 @@ def select_input_source(player, source):
 @lru_cache(5)
 def get_sources(player):
     res = player.cmd("browse/get_music_sources", {})
-    return {src['name']: src for src in res}
+    return {src['name']: src for src in res['payload']}
 
 
 def application(env, start_response):
