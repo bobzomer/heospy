@@ -2,7 +2,7 @@ import html
 import traceback
 from functools import lru_cache
 from pathlib import Path
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse, unquote_plus
 from .heos_player import HeosPlayer
 
 
@@ -24,9 +24,10 @@ def get_current_album(player):
 
 
 def play(player, url):
+    url = unquote_plus(url)
     for u in url.split():
         if u.startswith('http'):
-            url = u
+            url = html.unescape(u)
             break
     else:
         return '<html><body><h1>No URL found</h1>%s</body></html>' % url
@@ -36,11 +37,16 @@ def play(player, url):
     else:
         return '<html><body><h1>Unsupported URL</h1>%s</body></html>' % url
     res = player.cmd("browse/play_stream", {"url": url})
-    return '<html><body>OK</body></html>'
+    return '<html><body>%s</body></html>' % res['heos']['result']
+
+
+def select_input_source(player, source):
+    res = player.cmd('play_input', {"input": source})
+    return '<html><body>%s</body></html>' % res['heos']['result']
 
 
 @lru_cache(5)
-def get_source(player):
+def get_sources(player):
     res = player.cmd("browse/get_music_sources", {})
     return {src['name']: src for src in res}
 
@@ -70,6 +76,8 @@ def application(env, start_response):
             res = get_current_album(p)
         elif heos_cmd == 'play':
             res = play(p, heos_args['url'])
+        elif heos_cmd == 'get_sources':
+            res = '<html><body><pre>%s</pre></body></html>' % html.escape(get_sources(p))
         else:
             res = heos_cmd + str(heos_args)
         start_response('200 OK', [('Content-Type', 'text/html')])
