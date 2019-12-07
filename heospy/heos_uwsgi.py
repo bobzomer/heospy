@@ -55,7 +55,7 @@ def play(player, url):
             return '<html><body><h1>Unsupported media type in URL</h1>%s</body></html>' % url
     else:
         return '<html><body><h1>Unsupported URL</h1>%s</body></html>' % url
-    parameters = {"sid": sid, "aid": AddCriteriaIds.ReplaceAndPlay}
+    parameters = {"sid": sid, "aid": AddCriteriaIds.ReplaceAndPlay, "pid": player.pid}
     if cid is not None:
         parameters["cid"] = cid
     if mid is not None:
