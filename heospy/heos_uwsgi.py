@@ -50,7 +50,7 @@ def play(player, url):
             cid = 'Albums-%s' % deezer_id
         elif media_type == 'track':
             # browse/add_to_queue?pid=player_id&sid=source_id&cid=container_id&mid=media_id&aid=add-criteria
-            cid = None
+            cid = deezer_id
         else:
             return '<html><body><h1>Unsupported media type in URL</h1>%s</body></html>' % url
     else:
