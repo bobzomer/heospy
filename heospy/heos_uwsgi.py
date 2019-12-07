@@ -61,12 +61,12 @@ def play(player, url):
     if mid is not None:
         parameters["mid"] = mid
     res = player.cmd("browse/add_to_queue", parameters)
-    return '<html><body>%s</body></html>' % res['heos']['result']
+    return '<html><body>%s</body></html>' % res['heos'] #['result']
 
 
 def select_input_source(player, source):
     res = player.cmd('play_input', {"input": source})
-    return '<html><body>%s</body></html>' % res['heos']['result']
+    return '<html><body>%s</body></html>' % res['heos'] #['result']
 
 
 @lru_cache(5)
