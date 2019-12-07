@@ -9,6 +9,13 @@ from .heos_player import HeosPlayer
 config_file = Path(__file__).absolute().parent.parent / 'config.json'
 
 
+class AddCriteriaIds:
+    PlayNow = 1
+    PlayNext = 2
+    AddToEnd = 3
+    ReplaceAndPlay = 4
+
+
 def get_current_album(player):
     res = player.cmd("player/get_now_playing_media", {})
     return '''<html>
@@ -32,11 +39,28 @@ def play(player, url):
     else:
         return '<html><body><h1>No URL found</h1>%s</body></html>' % url
     parsed_url = urlparse(url)
+    cid = None
+    mid = None
     if 'deezer' in parsed_url.netloc:
+        *_, media_type, deezer_id = url.split('/')
         url = urlunparse(tuple(url)[:3]+('',)*3)
+        sid = get_sources(player)['Deezer']['sid']
+        if media_type == 'album':
+            # browse/add_to_queue?pid=player_id&sid=source_id&cid=container_id&aid=add_criteria
+            cid = 'Albums-%s' % deezer_id
+        elif media_type == 'track':
+            # browse/add_to_queue?pid=player_id&sid=source_id&cid=container_id&mid=media_id&aid=add-criteria
+            cid = None
+        else:
+            return '<html><body><h1>Unsupported media type in URL</h1>%s</body></html>' % url
     else:
         return '<html><body><h1>Unsupported URL</h1>%s</body></html>' % url
-    res = player.cmd("browse/play_stream", {"url": url})
+    parameters = {"sid": sid, "aid": AddCriteriaIds.ReplaceAndPlay}
+    if cid is not None:
+        parameters["cid"] = cid
+    if mid is not None:
+        parameters["mid"] = mid
+    res = player.cmd("browse/add_to_queue", parameters)
     return '<html><body>%s</body></html>' % res['heos']['result']
 
 
